@@ -3,9 +3,9 @@ package com.android.todolist;
 import java.sql.Date;
 import java.util.ArrayList;
 
+import com.android.todolist.ToDoItem.ToDoPriority;
+
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -60,12 +60,12 @@ public class ToDoList extends Activity {
         	public boolean onKey(View v, int keyCode, KeyEvent event) {
         		if (event.getAction() == KeyEvent.ACTION_DOWN)
         			if (keyCode == KeyEvent.KEYCODE_ENTER) {
+        				ToDoItem newItem = new ToDoItem(myEditText.getText().toString());
         				if (!editing) {
-        					ToDoItem newItem = new ToDoItem(myEditText.getText().toString());
         					toDoDBAdapter.insertTask(newItem);
         				}
         				else {
-        					toDoDBAdapter.updateTask(editingSqlId, myEditText.getText().toString());
+        					toDoDBAdapter.updateTask(editingSqlId, newItem);
         				}
         				updateArray();
         				myEditText.setText(R.string.empty);
@@ -105,9 +105,10 @@ public class ToDoList extends Activity {
     		do {
     			long sqlid = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_ID));
     			String task = toDoListCursor.getString(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_TASK));
+    			int priority = toDoListCursor.getInt(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_PRIORITY));
     		    long created = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_CREATION_DATE));
     		    
-    			ToDoItem newItem = new ToDoItem(sqlid, task, new Date(created));
+    			ToDoItem newItem = new ToDoItem(sqlid, task, ToDoPriority.NORMAL_PRIORITY, new Date(created));
     			todoItems.add(0, newItem);
     	} while(toDoListCursor.moveToNext());
     	aa.notifyDataSetChanged();
@@ -227,6 +228,7 @@ public class ToDoList extends Activity {
     private void cancelAdd() {
     	addingNew = false;
     	editing = false;
+    	myEditText.setText(R.string.empty);
     	myEditText.setVisibility(View.GONE);
     	updateArray();
     }

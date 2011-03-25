@@ -14,7 +14,7 @@ import android.util.Log;
 public class ToDoDBAdapter {
 	private static final String DATABASE_NAME = "todoList.db";
 	private static final String DATABASE_TABLE = "todoItems";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	
 	private SQLiteDatabase db;
 	private final Context context;
@@ -29,6 +29,7 @@ public class ToDoDBAdapter {
 	
 	public static final String KEY_ID = "_id";
 	public static final String KEY_TASK = "task";
+	public static final String KEY_PRIORITY = "priority";
 	public static final String KEY_CREATION_DATE = "creation_date";
 
 	public void close() {
@@ -49,6 +50,7 @@ public class ToDoDBAdapter {
 		ContentValues newTaskValues = new ContentValues();
 		// Assign values for each row.
 		newTaskValues.put(KEY_TASK, _task.getTask());
+		newTaskValues.put(KEY_PRIORITY, _task.priority.getPriority());
 		newTaskValues.put(KEY_CREATION_DATE, _task.getCreated().getTime());
 		// Insert the row.
 		return db.insert(DATABASE_TABLE, null, newTaskValues);
@@ -60,15 +62,16 @@ public class ToDoDBAdapter {
 	}
 	
 	// Update a task
-	public boolean updateTask(long _rowIndex, String _task) {
+	public boolean updateTask(long _rowIndex, ToDoItem _task) {
 		ContentValues newValue = new ContentValues();
-		newValue.put(KEY_TASK, _task);
+		newValue.put(KEY_TASK, _task.getTask());
+		newValue.put(KEY_PRIORITY, _task.priority.getPriority());
 		return db.update(DATABASE_TABLE, newValue, KEY_ID + "=" + _rowIndex, null) > 0;
 	}
 	
 	public Cursor getAllToDoItemsCursor() {
 		return db.query(DATABASE_TABLE,
-				new String[] { KEY_ID, KEY_TASK, KEY_CREATION_DATE},
+				new String[] { KEY_ID, KEY_TASK, KEY_PRIORITY, KEY_CREATION_DATE},
 				null, null, null, null, null);
 	}
 	
@@ -96,6 +99,7 @@ public class ToDoDBAdapter {
 		}
 		
 		String task = cursor.getString(cursor.getColumnIndex(KEY_TASK));
+		int priority = cursor.getInt(cursor.getColumnIndex(KEY_PRIORITY));
 		long created = cursor.getLong(cursor.getColumnIndex(KEY_CREATION_DATE));
 		ToDoItem result = new ToDoItem(task, new Date(created));
 		return result;
@@ -109,7 +113,7 @@ public class ToDoDBAdapter {
 		// SQL Statement to create a new database.
 		private static final String DATABASE_CREATE = "create table " +
 		DATABASE_TABLE + " (" + KEY_ID + " integer primary key autoincrement, " +
-		KEY_TASK + " text not null, " + KEY_CREATION_DATE + " long);";
+		KEY_TASK + " text not null, " + KEY_PRIORITY + " int, " + KEY_CREATION_DATE + " long);";
 		
 		@Override
 		public void onCreate(SQLiteDatabase _db) {
