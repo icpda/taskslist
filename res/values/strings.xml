@@ -5,14 +5,5 @@
     <string name="edit">Edit Item</string>
     <string name="remove">Remove Item</string>
     <string name="cancel">Cancel</string>
-    <string name="empty"></string>
-    
-    <!-- ToDoPriority values -->
-    <string name="low_value">Low</string>
-    <string name="normal_value">Normal</string>
-    <string name="high_value">High</string>
- 	<!-- ToDoPriority keys -->  
-    <string name="low_key">L</string>
-    <string name="normal_key">N</string>
-    <string name="high_key">H</string>
+    <string name="empty"></string>    
 </resources>
