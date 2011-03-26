@@ -7,6 +7,7 @@
     android:layout_width="wrap_content"
     android:layout_height="fill_parent"
     android:padding="10dp"
+    android:textSize="16sp"
     android:scrollbars="vertical"
     android:fadingEdge="vertical"
     android:layout_alignParentRight="true"
@@ -16,9 +17,9 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"  
     android:padding="10dp"
-    android:textSize="15sp"
+    android:textSize="16sp"
     android:scrollbars="vertical"
     android:fadingEdge="vertical"
-    android:layout_alignParentLeft="@+id/rowDate"
+    android:layout_toLeftOf="@+id/rowDate"
   />
 </RelativeLayout>
