@@ -22,6 +22,8 @@ import android.widget.ListView;
 public class ToDoList extends Activity {
 	private static final String TEXT_ENTRY_KEY = "TEXT_ENTRY_KEY";
 	private static final String ADDING_ITEM_KEY = "ADDING_ITEM_KEY";
+	private static final String EDITING_ITEM_KEY = "EDITING_ITEM_KEY";
+	private static final String EDITING_ITEM_MEMBER = "EDITING_ITEM_MEMBER";
 	private static final String SELECTED_INDEX_KEY = "SELECTED_INDEX_KEY";
 	
 	static final private int ADD_NEW_TODO = Menu.FIRST;
@@ -106,9 +108,11 @@ public class ToDoList extends Activity {
     			String task = toDoListCursor.getString(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_TASK));
     			int priority = toDoListCursor.getInt(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_PRIORITY));
     		    long created = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_CREATION_DATE));
-    		    
-    			ToDoItem newItem = new ToDoItem(sqlid, task, ToDoPriority.NORMAL_PRIORITY, new Date(created));
-    			todoItems.add(0, newItem);
+
+    		    if (!(editing && (editingSqlId == sqlid))) {
+    		    	ToDoItem newItem = new ToDoItem(sqlid, task, ToDoPriority.NORMAL_PRIORITY, new Date(created));
+    		    	todoItems.add(0, newItem);
+    		    }
     	} while(toDoListCursor.moveToNext());
     	aa.notifyDataSetChanged();
     }
@@ -141,7 +145,7 @@ public class ToDoList extends Activity {
     
     private boolean addingNew = false;
     private boolean editing = false;
-    private long editingSqlId;
+    private long editingSqlId = -1;
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -271,6 +275,8 @@ public class ToDoList extends Activity {
     	// Add the UI state preference values
     	editor.putString(TEXT_ENTRY_KEY, myEditText.getText().toString());
     	editor.putBoolean(ADDING_ITEM_KEY, addingNew);
+    	editor.putBoolean(EDITING_ITEM_KEY, editing);
+    	editor.putLong(EDITING_ITEM_MEMBER, editingSqlId);
     	// Commit the preferences
     	editor.commit();
     }
@@ -282,11 +288,18 @@ public class ToDoList extends Activity {
     	// Read the UI state values, specifying default values
     	String text = settings.getString(TEXT_ENTRY_KEY, "");
     	Boolean adding = settings.getBoolean(ADDING_ITEM_KEY, false);
+    	Boolean edit = settings.getBoolean(EDITING_ITEM_KEY, false);
+    	Long editSqlId = settings.getLong(EDITING_ITEM_MEMBER, -1);
     	
     	// Restore the UI to the previous state
     	if (adding) {
     		addNewItem();
     		myEditText.setText(text);
+    	}
+    	
+    	if (edit) {
+    		editing = true;
+    		editingSqlId = editSqlId;
     	}
     }
     
