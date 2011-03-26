@@ -10,7 +10,7 @@
     	android:text="@string/empty"
     	android:visibility="gone"
     	android:selectAllOnFocus="true"
-    	android:maxLength="100"
+    	android:maxLength="80"
     />
     <ListView
     	android:id="@+id/MyListView"
