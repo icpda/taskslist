@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -30,7 +29,7 @@ public class ToDoList extends Activity {
 	static final private int REMOVE_TODO = Menu.FIRST + 2;
 	
 	private ArrayList<ToDoItem> todoItems;
-	private ArrayAdapter<ToDoItem> aa;
+	private ToDoItemAdapter aa;
 	private ListView myListView;
 	private EditText myEditText;
 	
@@ -51,8 +50,8 @@ public class ToDoList extends Activity {
         // Create the array list of to do items
         todoItems = new ArrayList<ToDoItem>();
         // Create the array adapter to bind the array to the ListView
-        int resID = android.R.layout.simple_list_item_1;
-        aa = new ArrayAdapter<ToDoItem>(this, resID, todoItems);
+        int resID = R.layout.todolist_item;
+        aa = new ToDoItemAdapter(this, resID, todoItems);
         // Bind the array adapter to the list view
         myListView.setAdapter(aa);
         
