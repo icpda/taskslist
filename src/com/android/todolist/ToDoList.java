@@ -61,16 +61,18 @@ public class ToDoList extends Activity {
         	public boolean onKey(View v, int keyCode, KeyEvent event) {
         		if (event.getAction() == KeyEvent.ACTION_DOWN)
         			if (keyCode == KeyEvent.KEYCODE_ENTER) {
-        				ToDoItem newItem = new ToDoItem(myEditText.getText().toString());
-        				if (!editing) {
-        					toDoDBAdapter.insertTask(newItem);
+        				if (myEditText.getText().length() != 0) {
+        					ToDoItem newItem = new ToDoItem(myEditText.getText().toString());
+        					if (!editing) {
+        						toDoDBAdapter.insertTask(newItem);
+        					}
+        					else {
+        						toDoDBAdapter.updateTask(editingSqlId, newItem);
+        					}
+        					updateArray();
+        					myEditText.setText(R.string.empty);
+        					aa.notifyDataSetChanged();
         				}
-        				else {
-        					toDoDBAdapter.updateTask(editingSqlId, newItem);
-        				}
-        				updateArray();
-        				myEditText.setText(R.string.empty);
-        				aa.notifyDataSetChanged();
         				cancelAdd();
         				return true;
         			}
