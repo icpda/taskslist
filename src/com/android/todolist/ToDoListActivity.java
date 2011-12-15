@@ -19,7 +19,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
-public class ToDoList extends Activity {
+public class ToDoListActivity extends Activity {
 	private static final String TEXT_ENTRY_KEY = "TEXT_ENTRY_KEY";
 	private static final String ADDING_ITEM_KEY = "ADDING_ITEM_KEY";
 	private static final String EDITING_ITEM_KEY = "EDITING_ITEM_KEY";
@@ -35,7 +35,7 @@ public class ToDoList extends Activity {
 	private ListView myListView;
 	private EditText myEditText;
 	
-	ToDoDBAdapter toDoDBAdapter;
+	ToDoListDBAdapter toDoDBAdapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -83,7 +83,7 @@ public class ToDoList extends Activity {
         registerForContextMenu(myListView);
         restoreUIState();
         
-        toDoDBAdapter = new ToDoDBAdapter(this);
+        toDoDBAdapter = new ToDoListDBAdapter(this);
         
         // Open or create the database
         toDoDBAdapter.open();
@@ -106,10 +106,10 @@ public class ToDoList extends Activity {
     	todoItems.clear();
     	if (toDoListCursor.moveToFirst())
     		do {
-    			long sqlid = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_ID));
-    			String task = toDoListCursor.getString(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_TASK));
-    			int priority = toDoListCursor.getInt(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_PRIORITY));
-    		    long created = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoDBAdapter.KEY_CREATION_DATE));
+    			long sqlid = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_ID));
+    			String task = toDoListCursor.getString(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_TASK));
+    			int priority = toDoListCursor.getInt(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_PRIORITY));
+    		    long created = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_CREATION_DATE));
 
     		    if (!(editing && (editingSqlId == sqlid))) {
     		    	ToDoItem newItem = new ToDoItem(sqlid, task, ToDoPriority.NORMAL_PRIORITY, new Date(created));
@@ -258,10 +258,10 @@ public class ToDoList extends Activity {
     	editing = true;
     }
     
-    private void removeItem(int _index) {
+    private void removeItem(int index) {
     	
-    	ToDoItem item = todoItems.get(_index);
-    	toDoDBAdapter.removeTask(item.sqlid);
+    	ToDoItem item = todoItems.get(index);
+    	toDoDBAdapter.removeTask(item.getId());
     	updateArray();
     }
     

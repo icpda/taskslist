@@ -11,72 +11,71 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.util.Log;
 
-public class ToDoDBAdapter {
-	private static final String DATABASE_NAME = "todoList.db";
-	private static final String DATABASE_TABLE = "todoItems";
-	private static final int DATABASE_VERSION = 2;
+public class ToDoListDBAdapter {
+	private static final String DATABASE_NAME = "ToDoListDB.db";
+	private static final String DATABASE_TABLE_CATEGORIES = "ToDoCategories";
+	private static final String DATABASE_TABLE_ITEMS = "ToDoItems";
+	private static final int DATABASE_VERSION = 3;
 	
-	private SQLiteDatabase db;
-	private final Context context;
+	private SQLiteDatabase _db;
+	private ToDoListDBOpenHelper _dbHelper;
 	
-	private toDoDBOpenHelper dbHelper;
-	
-	public ToDoDBAdapter(Context _context) {
-		this.context = _context;
-		dbHelper = new toDoDBOpenHelper(context, DATABASE_NAME,
+	public ToDoListDBAdapter(Context context) {
+		_dbHelper = new ToDoListDBOpenHelper(context, DATABASE_NAME,
 				null, DATABASE_VERSION);
 	}
 	
 	public static final String KEY_ID = "_id";
 	public static final String KEY_TASK = "task";
+	public static final String KEY_CATEGORY ="category";
 	public static final String KEY_PRIORITY = "priority";
 	public static final String KEY_CREATION_DATE = "creation_date";
 
 	public void close() {
-		db.close();
+		_db.close();
 	}
 	
 	public void open() throws SQLiteException {
 		try {
-			db = dbHelper.getWritableDatabase();
+			_db = _dbHelper.getWritableDatabase();
 		} catch (SQLiteException ex) {
-			db = dbHelper.getReadableDatabase();
+			_db = _dbHelper.getReadableDatabase();
 		}
 	}
 
 	// Insert a new task
-	public long insertTask(ToDoItem _task) {
+	public long insertTask(ToDoItem task) {
 		// Create a new row of values to insert.
 		ContentValues newTaskValues = new ContentValues();
 		// Assign values for each row.
-		newTaskValues.put(KEY_TASK, _task.getTask());
-		newTaskValues.put(KEY_PRIORITY, _task.priority.getPriority());
-		newTaskValues.put(KEY_CREATION_DATE, _task.getCreated().getTime());
+		newTaskValues.put(KEY_TASK, task.getTask());
+		newTaskValues.put(KEY_PRIORITY, task.getPriority());
+		newTaskValues.put(KEY_CREATION_DATE, task.getCreated().getTime());
 		// Insert the row.
-		return db.insert(DATABASE_TABLE, null, newTaskValues);
+		return _db.insert(DATABASE_TABLE_ITEMS, null, newTaskValues);
 	}
 	
 	// Remove a task based on its index
 	public boolean removeTask(long _rowIndex) {
-		return db.delete(DATABASE_TABLE, KEY_ID + "=" + _rowIndex, null) > 0;
+		return _db.delete(DATABASE_TABLE_ITEMS, KEY_ID + "=" + _rowIndex, null) > 0;
 	}
 	
 	// Update a task
 	public boolean updateTask(long _rowIndex, ToDoItem _task) {
 		ContentValues newValue = new ContentValues();
 		newValue.put(KEY_TASK, _task.getTask());
-		newValue.put(KEY_PRIORITY, _task.priority.getPriority());
-		return db.update(DATABASE_TABLE, newValue, KEY_ID + "=" + _rowIndex, null) > 0;
+		newValue.put(KEY_PRIORITY, _task.getPriority());
+		return _db.update(DATABASE_TABLE_ITEMS, newValue, KEY_ID + "=" + _rowIndex, null) > 0;
 	}
 	
 	public Cursor getAllToDoItemsCursor() {
-		return db.query(DATABASE_TABLE,
+		return _db.query(DATABASE_TABLE_ITEMS,
 				new String[] { KEY_ID, KEY_TASK, KEY_PRIORITY, KEY_CREATION_DATE},
 				null, null, null, null, null);
 	}
 	
 	public Cursor setCursorToToDoItem(long _rowIndex) throws SQLException {
-		Cursor result = db.query(true, DATABASE_TABLE,
+		Cursor result = _db.query(true, DATABASE_TABLE_ITEMS,
 				new String[] {KEY_ID, KEY_TASK},
 				KEY_ID + "=" + _rowIndex, null, null, null,
 				null, null);
@@ -89,7 +88,7 @@ public class ToDoDBAdapter {
 	}
 	
 	public ToDoItem getToDoItem(long _rowIndex) throws SQLException {
-		Cursor cursor = db.query(true, DATABASE_TABLE,
+		Cursor cursor = _db.query(true, DATABASE_TABLE_ITEMS,
 				new String[] {KEY_ID, KEY_TASK},
 				KEY_ID + "=" + _rowIndex, null, null, null,
 				null, null);
@@ -105,14 +104,14 @@ public class ToDoDBAdapter {
 		return result;
 	}
 
-	private static class toDoDBOpenHelper extends SQLiteOpenHelper {
-		public toDoDBOpenHelper(Context context, String name, CursorFactory factory, int version) {
+	private static class ToDoListDBOpenHelper extends SQLiteOpenHelper {
+		public ToDoListDBOpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
 		}
 		
 		// SQL Statement to create a new database.
 		private static final String DATABASE_CREATE = "create table " +
-		DATABASE_TABLE + " (" + KEY_ID + " integer primary key autoincrement, " +
+		DATABASE_TABLE_ITEMS + " (" + KEY_ID + " integer primary key autoincrement, " +
 		KEY_TASK + " text not null, " + KEY_PRIORITY + " int, " + KEY_CREATION_DATE + " long);";
 		
 		@Override
@@ -126,7 +125,7 @@ public class ToDoDBAdapter {
 					_oldVersion + " to " +
 					_newVersion + ", which will destroy all old data");
 			// Drop the old table.
-			_db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE);
+			_db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_ITEMS);
 			// Create a new one.
 			onCreate(_db);
 		}		

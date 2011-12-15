@@ -10,75 +10,75 @@ public class ToDoItem {
 		NORMAL_PRIORITY(2),
 		HIGH_PRIORITY(3);
 		
-		private int priority;
+		private int _priority;
 		
 		private ToDoPriority(int p) {
-			priority = p;
+			_priority = p;
 		}
 		
 		public int getPriority() {
-			return priority;
+			return _priority;
 		}		
 	}
 	
-	long sqlid;
-	String task;
-	ToDoPriority priority;
-	Date created;
+	private long _sqlid;
+	private String _task;
+	private ToDoPriority _priority;
+	private Date _created;
 	
 	public long getId() {
-		return sqlid;
+		return _sqlid;
 	}
 	
 	public String getTask() {
-		return task;
+		return _task;
 	}
 	
 	public int getPriority() {
-		return priority.getPriority();
+		return _priority.getPriority();
 	}
 		
 	public Date getCreated() {
-		return created;
+		return _created;
 	}
 	
-	public ToDoItem(String _task) {
-		this(_task, new Date(java.lang.System.currentTimeMillis()));
+	public ToDoItem(String task) {
+		this(task, new Date(java.lang.System.currentTimeMillis()));
 	}
 	
-	public ToDoItem(String _task, Date _created) {
-		sqlid = -1;
-		task = _task;
-		priority = ToDoPriority.NORMAL_PRIORITY;
-		created = _created;
+	public ToDoItem(String task, Date created) {
+		_sqlid = -1;
+		_task = task;
+		_priority = ToDoPriority.NORMAL_PRIORITY;
+		_created = created;
 	}
 	
-	public ToDoItem(long _sqlid, String _task, ToDoPriority _priority, Date _created) {
-		sqlid = _sqlid;
-		task = _task;
-		priority = _priority;
-		created = _created;
+	public ToDoItem(long sqlid, String task, ToDoPriority priority, Date created) {
+		_sqlid = sqlid;
+		_task = task;
+		_priority = priority;
+		_created = created;
 	}
 	
 	@Override
 	public String toString() {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
-		String dateString = sdf.format(created);
-		return "[" + getPriorityKey() + "] " + task + " (" + dateString + ")";
+		String dateString = sdf.format(_created);
+		return "[" + getPriorityKey() + "] " + _task + " (" + dateString + ")";
 	}
 	
-	public static String getPriorityValue(ToDoPriority _priority) {
-		if (_priority == ToDoPriority.LOW_PRIORITY)
+	public static String getPriority(ToDoPriority priority) {
+		if (priority == ToDoPriority.LOW_PRIORITY)
 			return "Low";
-		if (_priority == ToDoPriority.HIGH_PRIORITY)
+		if (priority == ToDoPriority.HIGH_PRIORITY)
 			return "High";
 		return "Normal";
 	}
 
 	public String getPriorityKey() {
-		if (priority == ToDoPriority.LOW_PRIORITY)
+		if (_priority == ToDoPriority.LOW_PRIORITY)
 			return "L";
-		if (priority == ToDoPriority.HIGH_PRIORITY)
+		if (_priority == ToDoPriority.HIGH_PRIORITY)
 			return "H";
 		return "N";
 	}
