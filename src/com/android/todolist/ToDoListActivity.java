@@ -157,12 +157,14 @@ public class ToDoListActivity extends Activity {
     	
     	String removeTitle = getString(addingNew ? R.string.cancel : R.string.remove);
     	
-    	MenuItem editItem = menu.findItem(EDIT_TODO);
-    	MenuItem removeItem = menu.findItem(REMOVE_TODO);
-    	editItem.setTitle(R.string.edit);
-    	removeItem.setTitle(removeTitle);
-    	editItem.setVisible(addingNew == false && idx > -1);
-    	removeItem.setVisible(addingNew || idx > -1);
+    	MenuItem mItemAdd = menu.findItem(ADD_NEW_TODO);
+    	MenuItem mItemEdit = menu.findItem(EDIT_TODO);
+    	MenuItem mItemRemove = menu.findItem(REMOVE_TODO);
+    	mItemEdit.setTitle(R.string.edit);
+    	mItemRemove.setTitle(removeTitle);
+    	mItemAdd.setVisible(addingNew == false);
+    	mItemEdit.setVisible(addingNew == false && idx > -1);
+    	mItemRemove.setVisible(addingNew || idx > -1);
     	
     	return true;
     }
@@ -230,14 +232,6 @@ public class ToDoListActivity extends Activity {
     	return false;
     }
     
-    private void cancelAdd() {
-    	addingNew = false;
-    	editing = false;
-    	myEditText.setText(R.string.empty);
-    	myEditText.setVisibility(View.GONE);
-    	updateArray();
-    }
-    
     private void addNewItem() {
     	addingNew = true;
     	myEditText.setVisibility(View.VISIBLE);
@@ -256,6 +250,14 @@ public class ToDoListActivity extends Activity {
     	
     	addNewItem();
     	editing = true;
+    }
+    
+    private void cancelAdd() {
+    	addingNew = false;
+    	editing = false;
+    	myEditText.setText(R.string.empty);
+    	myEditText.setVisibility(View.GONE);
+    	updateArray();
     }
     
     private void removeItem(int index) {
