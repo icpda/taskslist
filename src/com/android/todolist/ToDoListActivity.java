@@ -63,11 +63,11 @@ public class ToDoListActivity extends Activity {
         			if (keyCode == KeyEvent.KEYCODE_ENTER) {
         				if (myEditText.getText().length() != 0) {
         					ToDoItem newItem = new ToDoItem(myEditText.getText().toString());
-        					if (!editing) {
+        					if (!bEditItem) {
         						toDoDBAdapter.insertTask(newItem);
         					}
         					else {
-        						toDoDBAdapter.updateTask(editingSqlId, newItem);
+        						toDoDBAdapter.updateTask(lEditSqlId, newItem);
         					}
         					updateArray();
         					myEditText.setText(R.string.empty);
@@ -111,7 +111,7 @@ public class ToDoListActivity extends Activity {
     			int priority = toDoListCursor.getInt(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_PRIORITY));
     		    long created = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_CREATION_DATE));
 
-    		    if (!(editing && (editingSqlId == sqlid))) {
+    		    if (!(bEditItem && (lEditSqlId == sqlid))) {
     		    	ToDoItem newItem = new ToDoItem(sqlid, task, ToDoPriority.NORMAL_PRIORITY, new Date(created));
     		    	todoItems.add(0, newItem);
     		    }
@@ -145,9 +145,9 @@ public class ToDoListActivity extends Activity {
     	menu.add(0, REMOVE_TODO, Menu.NONE, R.string.remove);
     }
     
-    private boolean addingNew = false;
-    private boolean editing = false;
-    private long editingSqlId = -1;
+    private boolean bAddItem = false;
+    private boolean bEditItem = false;
+    private long lEditSqlId = -1;
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -155,16 +155,16 @@ public class ToDoListActivity extends Activity {
     	
     	int idx = myListView.getSelectedItemPosition();
     	
-    	String removeTitle = getString(addingNew ? R.string.cancel : R.string.remove);
+    	String removeTitle = getString(bAddItem ? R.string.cancel : R.string.remove);
     	
     	MenuItem mItemAdd = menu.findItem(ADD_NEW_TODO);
     	MenuItem mItemEdit = menu.findItem(EDIT_TODO);
     	MenuItem mItemRemove = menu.findItem(REMOVE_TODO);
     	mItemEdit.setTitle(R.string.edit);
     	mItemRemove.setTitle(removeTitle);
-    	mItemAdd.setVisible(addingNew == false);
-    	mItemEdit.setVisible(addingNew == false && idx > -1);
-    	mItemRemove.setVisible(addingNew || idx > -1);
+    	mItemAdd.setVisible(bAddItem == false);
+    	mItemEdit.setVisible(bAddItem == false && idx > -1);
+    	mItemRemove.setVisible(bAddItem || idx > -1);
     	
     	return true;
     }
@@ -179,7 +179,7 @@ public class ToDoListActivity extends Activity {
     	
     	switch (item.getItemId()) {
     		case (ADD_NEW_TODO): {
-    			if (editing) {
+    			if (bEditItem) {
     				myEditText.setText("");
     				cancelAdd();
     			}
@@ -192,7 +192,7 @@ public class ToDoListActivity extends Activity {
     			return true;
     		}
     		case (REMOVE_TODO): {
-    			if (addingNew) {
+    			if (bAddItem) {
     				cancelAdd();
     			}
     			else {
@@ -233,7 +233,7 @@ public class ToDoListActivity extends Activity {
     }
     
     private void addNewItem() {
-    	addingNew = true;
+    	bAddItem = true;
     	myEditText.setVisibility(View.VISIBLE);
     	myEditText.requestFocus();
     }
@@ -241,20 +241,20 @@ public class ToDoListActivity extends Activity {
     private void editItem(int index) {
 		ToDoItem item = todoItems.get(index);
 		myEditText.setText(item.getTask());
-		editingSqlId = item.getId();
+		lEditSqlId = item.getId();
 		
 		todoItems.remove(index);
 		
-    	if (addingNew)
+    	if (bAddItem)
     		cancelAdd();
     	
     	addNewItem();
-    	editing = true;
+    	bEditItem = true;
     }
     
     private void cancelAdd() {
-    	addingNew = false;
-    	editing = false;
+    	bAddItem = false;
+    	bEditItem = false;
     	myEditText.setText(R.string.empty);
     	myEditText.setVisibility(View.GONE);
     	updateArray();
@@ -278,9 +278,9 @@ public class ToDoListActivity extends Activity {
     	
     	// Add the UI state preference values
     	editor.putString(TEXT_ENTRY_KEY, myEditText.getText().toString());
-    	editor.putBoolean(ADDING_ITEM_KEY, addingNew);
-    	editor.putBoolean(EDITING_ITEM_KEY, editing);
-    	editor.putLong(EDITING_ITEM_MEMBER, editingSqlId);
+    	editor.putBoolean(ADDING_ITEM_KEY, bAddItem);
+    	editor.putBoolean(EDITING_ITEM_KEY, bEditItem);
+    	editor.putLong(EDITING_ITEM_MEMBER, lEditSqlId);
     	// Commit the preferences
     	editor.commit();
     }
@@ -302,8 +302,8 @@ public class ToDoListActivity extends Activity {
     	}
     	
     	if (edit) {
-    		editing = true;
-    		editingSqlId = editSqlId;
+    		bEditItem = true;
+    		lEditSqlId = editSqlId;
     	}
     }
     
