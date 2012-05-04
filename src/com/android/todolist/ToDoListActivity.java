@@ -211,6 +211,9 @@ public class ToDoListActivity extends Activity {
     	
     	boolean edit = false;
     	
+    	if (bAddItem)
+    		cancelAdd();
+    	
     	switch (item.getItemId()) {
     		case (EDIT_TODO):
     			edit = true;
