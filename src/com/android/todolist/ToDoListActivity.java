@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -74,6 +75,11 @@ public class ToDoListActivity extends Activity {
         					aa.notifyDataSetChanged();
         				}
         				cancelAdd();
+        				
+        				/* Hides soft keyboard */
+        				InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        				imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
         				return true;
         			}
         		return false;
@@ -239,6 +245,11 @@ public class ToDoListActivity extends Activity {
     	bAddItem = true;
     	myEditText.setVisibility(View.VISIBLE);
     	myEditText.requestFocus();
+    	
+    	/* Shows soft keyboard */
+    	InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+    	imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
     }
     
     private void editItem(int index) {
