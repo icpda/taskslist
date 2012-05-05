@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class ToDoListActivity extends Activity {
 	private static final String TEXT_ENTRY_KEY = "TEXT_ENTRY_KEY";
@@ -73,6 +74,8 @@ public class ToDoListActivity extends Activity {
         					updateArray();
         					myEditText.setText(R.string.empty);
         					aa.notifyDataSetChanged();
+        				} else {
+        					Toast.makeText(getApplicationContext(), R.string.error_empty, Toast.LENGTH_SHORT).show();
         				}
         				cancelAdd();
         				
