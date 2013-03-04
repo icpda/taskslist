@@ -1,4 +1,4 @@
-package com.android.todolist;
+package com.android.tasklist;
 
 import java.sql.Date;
 import android.content.ContentValues;
@@ -11,17 +11,17 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.util.Log;
 
-public class ToDoListDBAdapter {
-	private static final String DATABASE_NAME = "ToDoListDB.db";
-	private static final String DATABASE_TABLE_CATEGORIES = "ToDoCategories";
-	private static final String DATABASE_TABLE_ITEMS = "ToDoItems";
-	private static final int DATABASE_VERSION = 3;
+public class TaskListDBAdapter {
+	private static final String DATABASE_NAME = "TaskListDB.db";
+	private static final String DATABASE_TABLE_CATEGORIES = "TaskCategories";
+	private static final String DATABASE_TABLE_ITEMS = "TaskItems";
+	private static final int DATABASE_VERSION = 4;
 	
 	private SQLiteDatabase _db;
-	private ToDoListDBOpenHelper _dbHelper;
+	private TaskListDBOpenHelper _dbHelper;
 	
-	public ToDoListDBAdapter(Context context) {
-		_dbHelper = new ToDoListDBOpenHelper(context, DATABASE_NAME,
+	public TaskListDBAdapter(Context context) {
+		_dbHelper = new TaskListDBOpenHelper(context, DATABASE_NAME,
 				null, DATABASE_VERSION);
 	}
 	
@@ -44,7 +44,7 @@ public class ToDoListDBAdapter {
 	}
 
 	// Insert a new task
-	public long insertTask(ToDoItem task) {
+	public long insertTask(TaskItem task) {
 		// Create a new row of values to insert.
 		ContentValues newTaskValues = new ContentValues();
 		// Assign values for each row.
@@ -61,20 +61,20 @@ public class ToDoListDBAdapter {
 	}
 	
 	// Update a task
-	public boolean updateTask(long _rowIndex, ToDoItem _task) {
+	public boolean updateTask(long _rowIndex, TaskItem _task) {
 		ContentValues newValue = new ContentValues();
 		newValue.put(KEY_TASK, _task.getTask());
 		newValue.put(KEY_PRIORITY, _task.getPriority());
 		return _db.update(DATABASE_TABLE_ITEMS, newValue, KEY_ID + "=" + _rowIndex, null) > 0;
 	}
 	
-	public Cursor getAllToDoItemsCursor() {
+	public Cursor getAllTaskItemsCursor() {
 		return _db.query(DATABASE_TABLE_ITEMS,
 				new String[] { KEY_ID, KEY_TASK, KEY_PRIORITY, KEY_CREATION_DATE},
 				null, null, null, null, null);
 	}
 	
-	public Cursor setCursorToToDoItem(long _rowIndex) throws SQLException {
+	public Cursor setCursorToTaskItem(long _rowIndex) throws SQLException {
 		Cursor result = _db.query(true, DATABASE_TABLE_ITEMS,
 				new String[] {KEY_ID, KEY_TASK},
 				KEY_ID + "=" + _rowIndex, null, null, null,
@@ -87,7 +87,7 @@ public class ToDoListDBAdapter {
 		return result;
 	}
 	
-	public ToDoItem getToDoItem(long _rowIndex) throws SQLException {
+	public TaskItem getTaskItem(long _rowIndex) throws SQLException {
 		Cursor cursor = _db.query(true, DATABASE_TABLE_ITEMS,
 				new String[] {KEY_ID, KEY_TASK},
 				KEY_ID + "=" + _rowIndex, null, null, null,
@@ -100,12 +100,12 @@ public class ToDoListDBAdapter {
 		String task = cursor.getString(cursor.getColumnIndex(KEY_TASK));
 		int priority = cursor.getInt(cursor.getColumnIndex(KEY_PRIORITY));
 		long created = cursor.getLong(cursor.getColumnIndex(KEY_CREATION_DATE));
-		ToDoItem result = new ToDoItem(task, new Date(created));
+		TaskItem result = new TaskItem(task, new Date(created));
 		return result;
 	}
 
-	private static class ToDoListDBOpenHelper extends SQLiteOpenHelper {
-		public ToDoListDBOpenHelper(Context context, String name, CursorFactory factory, int version) {
+	private static class TaskListDBOpenHelper extends SQLiteOpenHelper {
+		public TaskListDBOpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
 		}
 		

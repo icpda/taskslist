@@ -1,10 +1,11 @@
-package com.android.todolist;
+package com.android.tasklist;
 
 import java.sql.Date;
 import java.util.ArrayList;
 
-import com.android.todolist.ToDoItem.ToDoPriority;
+import com.android.tasklist.TaskItem.TaskPriority;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -21,23 +22,19 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class ToDoListActivity extends Activity {
+public class TaskListActivity extends Activity {
 	private static final String TEXT_ENTRY_KEY = "TEXT_ENTRY_KEY";
 	private static final String ADDING_ITEM_KEY = "ADDING_ITEM_KEY";
 	private static final String EDITING_ITEM_KEY = "EDITING_ITEM_KEY";
 	private static final String EDITING_ITEM_MEMBER = "EDITING_ITEM_MEMBER";
 	private static final String SELECTED_INDEX_KEY = "SELECTED_INDEX_KEY";
 	
-	static final private int ADD_NEW_TODO = Menu.FIRST;
-	static final private int EDIT_TODO = Menu.FIRST +1;
-	static final private int REMOVE_TODO = Menu.FIRST + 2;
+	private ArrayList<TaskItem> taskItems;
+	private TaskItemAdapter taskItemAdapter;
+	private ListView listView;
+	private EditText editText;
 	
-	private ArrayList<ToDoItem> todoItems;
-	private ToDoItemAdapter aa;
-	private ListView myListView;
-	private EditText myEditText;
-	
-	ToDoListDBAdapter toDoDBAdapter;
+	TaskListDBAdapter taskDBAdapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -48,32 +45,32 @@ public class ToDoListActivity extends Activity {
         setContentView(R.layout.main);
         
         // Get references to UI widget
-        myListView = (ListView)findViewById(R.id.MyListView);
-        myEditText = (EditText)findViewById(R.id.MyEditText);
+        listView = (ListView)findViewById(R.id.MyListView);
+        editText = (EditText)findViewById(R.id.MyEditText);
         
         // Create the array list of to do items
-        todoItems = new ArrayList<ToDoItem>();
+        taskItems = new ArrayList<TaskItem>();
         // Create the array adapter to bind the array to the ListView
-        int resID = R.layout.todolist_item;
-        aa = new ToDoItemAdapter(this, resID, todoItems);
+        int resID = R.layout.tasklist_item;
+        taskItemAdapter = new TaskItemAdapter(this, resID, taskItems);
         // Bind the array adapter to the list view
-        myListView.setAdapter(aa);
+        listView.setAdapter(taskItemAdapter);
         
-        myEditText.setOnKeyListener(new OnKeyListener() {
+        editText.setOnKeyListener(new OnKeyListener() {
         	public boolean onKey(View v, int keyCode, KeyEvent event) {
         		if (event.getAction() == KeyEvent.ACTION_DOWN)
         			if (keyCode == KeyEvent.KEYCODE_ENTER) {
-        				if (myEditText.getText().length() != 0) {
-        					ToDoItem newItem = new ToDoItem(myEditText.getText().toString());
+        				if (editText.getText().length() != 0) {
+        					TaskItem newItem = new TaskItem(editText.getText().toString());
         					if (!bEditItem) {
-        						toDoDBAdapter.insertTask(newItem);
+        						taskDBAdapter.insertTask(newItem);
         					}
         					else {
-        						toDoDBAdapter.updateTask(lEditSqlId, newItem);
+        						taskDBAdapter.updateTask(lEditSqlId, newItem);
         					}
         					updateArray();
-        					myEditText.setText(R.string.empty);
-        					aa.notifyDataSetChanged();
+        					editText.setText(R.string.empty);
+        					taskItemAdapter.notifyDataSetChanged();
         				} else {
         					Toast.makeText(getApplicationContext(), R.string.error_empty, Toast.LENGTH_SHORT).show();
         				}
@@ -89,86 +86,69 @@ public class ToDoListActivity extends Activity {
         	}
         });
         
-        registerForContextMenu(myListView);
+        registerForContextMenu(listView);
         restoreUIState();
         
-        toDoDBAdapter = new ToDoListDBAdapter(this);
+        taskDBAdapter = new TaskListDBAdapter(this);
         
         // Open or create the database
-        toDoDBAdapter.open();
+        taskDBAdapter.open();
         
-        populateTodoList();
+        populateTaskList();
     }
     
-    Cursor toDoListCursor;
+    Cursor taskListCursor;
     
-    private void populateTodoList() {
-    	// Get all the to do list items from the database.
-    	toDoListCursor = toDoDBAdapter.getAllToDoItemsCursor();
-    	startManagingCursor(toDoListCursor);
+    private void populateTaskList() {
+    	// Get all the task list items from the database.
+    	taskListCursor = taskDBAdapter.getAllTaskItemsCursor();
+    	startManagingCursor(taskListCursor);
     	// Update the array.
     	updateArray();
     }
     
     private void updateArray() {
-    	toDoListCursor.requery();
-    	todoItems.clear();
-    	if (toDoListCursor.moveToFirst())
+    	taskListCursor.requery();
+    	taskItems.clear();
+    	if (taskListCursor.moveToFirst())
     		do {
-    			long sqlid = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_ID));
-    			String task = toDoListCursor.getString(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_TASK));
-    			int priority = toDoListCursor.getInt(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_PRIORITY));
-    		    long created = toDoListCursor.getLong(toDoListCursor.getColumnIndex(ToDoListDBAdapter.KEY_CREATION_DATE));
+    			long sqlid = taskListCursor.getLong(taskListCursor.getColumnIndex(TaskListDBAdapter.KEY_ID));
+    			String task = taskListCursor.getString(taskListCursor.getColumnIndex(TaskListDBAdapter.KEY_TASK));
+    			int priority = taskListCursor.getInt(taskListCursor.getColumnIndex(TaskListDBAdapter.KEY_PRIORITY));
+    		    long created = taskListCursor.getLong(taskListCursor.getColumnIndex(TaskListDBAdapter.KEY_CREATION_DATE));
 
     		    if (!(bEditItem && (lEditSqlId == sqlid))) {
-    		    	ToDoItem newItem = new ToDoItem(sqlid, task, ToDoPriority.NORMAL_PRIORITY, new Date(created));
-    		    	todoItems.add(0, newItem);
+    		    	TaskItem newItem = new TaskItem(sqlid, task, TaskPriority.NORMAL_PRIORITY, new Date(created));
+    		    	taskItems.add(0, newItem);
     		    }
-    	} while(toDoListCursor.moveToNext());
-    	aa.notifyDataSetChanged();
+    	} while(taskListCursor.moveToNext());
+    	taskItemAdapter.notifyDataSetChanged();
     }
-    
+
+    private boolean bAddItem = false;
+    private boolean bEditItem = false;
+    private long lEditSqlId = -1;
+        
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
     	
-    	// Create and add new menu items
-    	MenuItem itemAdd = menu.add(0, ADD_NEW_TODO, Menu.NONE, R.string.add_new);
-    	MenuItem itemEdi = menu.add(0, EDIT_TODO, Menu.NONE, R.string.edit);
-    	MenuItem itemRem = menu.add(0, REMOVE_TODO, Menu.NONE, R.string.remove);
-    	
-    	// Assign icons
-    	itemAdd.setIcon(android.R.drawable.ic_menu_add);
-    	itemEdi.setIcon(android.R.drawable.ic_menu_edit);
-    	itemRem.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-    	
+    	getMenuInflater().inflate(R.menu.task_menu, menu);
+
     	return true;
     }
-    
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-    	super.onCreateContextMenu(menu, v, menuInfo);
-    	
-    	menu.setHeaderTitle("Selected To Do Item");
-    	menu.add(0, EDIT_TODO, Menu.NONE, R.string.edit);
-    	menu.add(0, REMOVE_TODO, Menu.NONE, R.string.remove);
-    }
-    
-    private boolean bAddItem = false;
-    private boolean bEditItem = false;
-    private long lEditSqlId = -1;
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
     	super.onPrepareOptionsMenu(menu);
     	
-    	int idx = myListView.getSelectedItemPosition();
+    	int idx = listView.getSelectedItemPosition();
     	
     	String removeTitle = getString(bAddItem ? R.string.cancel : R.string.remove);
     	
-    	MenuItem mItemAdd = menu.findItem(ADD_NEW_TODO);
-    	MenuItem mItemEdit = menu.findItem(EDIT_TODO);
-    	MenuItem mItemRemove = menu.findItem(REMOVE_TODO);
+    	MenuItem mItemAdd = menu.findItem(R.id.task_add);
+    	MenuItem mItemEdit = menu.findItem(R.id.task_edit);
+    	MenuItem mItemRemove = menu.findItem(R.id.task_remove);
     	mItemEdit.setTitle(R.string.edit);
     	mItemRemove.setTitle(removeTitle);
     	mItemAdd.setVisible(bAddItem == false);
@@ -182,25 +162,25 @@ public class ToDoListActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	super.onOptionsItemSelected(item);
     	
-    	myListView.requestFocus();
+    	listView.requestFocus();
     	
-    	int index = myListView.getSelectedItemPosition();
+    	int index = listView.getSelectedItemPosition();
     	
     	switch (item.getItemId()) {
-    		case (ADD_NEW_TODO): {
+    		case R.id.task_add: {
     			if (bEditItem) {
-    				myEditText.setText("");
+    				editText.setText("");
     				cancelAdd();
     			}
     			
     			addNewItem();
     			return true;
     		}
-    		case (EDIT_TODO): {
+    		case R.id.task_edit: {
     			editItem(index);
     			return true;
     		}
-    		case (REMOVE_TODO): {
+    		case R.id.task_remove: {
     			if (bAddItem) {
     				cancelAdd();
     			}
@@ -215,6 +195,15 @@ public class ToDoListActivity extends Activity {
     }
     
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    	super.onCreateContextMenu(menu, v, menuInfo);
+    	
+    	menu.setHeaderTitle("Selected To Do Item");
+    	menu.add(0, R.id.task_edit, Menu.NONE, R.string.edit);
+    	menu.add(0, R.id.task_remove, Menu.NONE, R.string.remove);
+    }
+    
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
     	super.onContextItemSelected(item);
     	
@@ -224,9 +213,9 @@ public class ToDoListActivity extends Activity {
     		cancelAdd();
     	
     	switch (item.getItemId()) {
-    		case (EDIT_TODO):
+    		case R.id.task_edit:
     			edit = true;
-    		case (REMOVE_TODO): {
+    		case R.id.task_remove: {
     			AdapterView.AdapterContextMenuInfo menuInfo;
     			menuInfo = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
     			int index = menuInfo.position;
@@ -246,8 +235,8 @@ public class ToDoListActivity extends Activity {
     
     private void addNewItem() {
     	bAddItem = true;
-    	myEditText.setVisibility(View.VISIBLE);
-    	myEditText.requestFocus();
+    	editText.setVisibility(View.VISIBLE);
+    	editText.requestFocus();
     	
     	/* Shows soft keyboard */
     	InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -256,11 +245,11 @@ public class ToDoListActivity extends Activity {
     }
     
     private void editItem(int index) {
-		ToDoItem item = todoItems.get(index);
-		myEditText.setText(item.getTask());
+		TaskItem item = taskItems.get(index);
+		editText.setText(item.getTask());
 		lEditSqlId = item.getId();
 		
-		todoItems.remove(index);
+		taskItems.remove(index);
 		
     	if (bAddItem)
     		cancelAdd();
@@ -272,15 +261,15 @@ public class ToDoListActivity extends Activity {
     private void cancelAdd() {
     	bAddItem = false;
     	bEditItem = false;
-    	myEditText.setText(R.string.empty);
-    	myEditText.setVisibility(View.GONE);
+    	editText.setText(R.string.empty);
+    	editText.setVisibility(View.GONE);
     	updateArray();
     }
     
     private void removeItem(int index) {
     	
-    	ToDoItem item = todoItems.get(index);
-    	toDoDBAdapter.removeTask(item.getId());
+    	TaskItem item = taskItems.get(index);
+    	taskDBAdapter.removeTask(item.getId());
     	updateArray();
     }
     
@@ -294,7 +283,7 @@ public class ToDoListActivity extends Activity {
     	SharedPreferences.Editor editor = uiState.edit();
     	
     	// Add the UI state preference values
-    	editor.putString(TEXT_ENTRY_KEY, myEditText.getText().toString());
+    	editor.putString(TEXT_ENTRY_KEY, editText.getText().toString());
     	editor.putBoolean(ADDING_ITEM_KEY, bAddItem);
     	editor.putBoolean(EDITING_ITEM_KEY, bEditItem);
     	editor.putLong(EDITING_ITEM_MEMBER, lEditSqlId);
@@ -315,7 +304,7 @@ public class ToDoListActivity extends Activity {
     	// Restore the UI to the previous state
     	if (adding) {
     		addNewItem();
-    		myEditText.setText(text);
+    		editText.setText(text);
     	}
     	
     	if (edit) {
@@ -326,7 +315,7 @@ public class ToDoListActivity extends Activity {
     
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-    	savedInstanceState.putInt(SELECTED_INDEX_KEY, myListView.getSelectedItemPosition());
+    	savedInstanceState.putInt(SELECTED_INDEX_KEY, listView.getSelectedItemPosition());
     	
     	super.onSaveInstanceState(savedInstanceState);
     }
@@ -339,7 +328,7 @@ public class ToDoListActivity extends Activity {
     		if (savedInstanceState.containsKey(SELECTED_INDEX_KEY))
     			pos = savedInstanceState.getInt(SELECTED_INDEX_KEY, -1);
     	
-    	myListView.setSelection(pos);
+    	listView.setSelection(pos);
     }
     
     @Override
@@ -347,6 +336,6 @@ public class ToDoListActivity extends Activity {
     	super.onDestroy();
     	
     	// Close the database
-    	toDoDBAdapter.close();
+    	taskDBAdapter.close();
     }
 }

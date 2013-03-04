@@ -1,18 +1,18 @@
-package com.android.todolist;
+package com.android.tasklist;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ToDoItem {
+public class TaskItem {
 	
-	public enum ToDoPriority {
+	public enum TaskPriority {
 		LOW_PRIORITY(1),
 		NORMAL_PRIORITY(2),
 		HIGH_PRIORITY(3);
 		
 		private int _priority;
 		
-		private ToDoPriority(int p) {
+		private TaskPriority(int p) {
 			_priority = p;
 		}
 		
@@ -23,7 +23,7 @@ public class ToDoItem {
 	
 	private long _sqlid;
 	private String _task;
-	private ToDoPriority _priority;
+	private TaskPriority _priority;
 	private Date _created;
 	
 	public long getId() {
@@ -42,18 +42,18 @@ public class ToDoItem {
 		return _created;
 	}
 	
-	public ToDoItem(String task) {
+	public TaskItem(String task) {
 		this(task, new Date(java.lang.System.currentTimeMillis()));
 	}
 	
-	public ToDoItem(String task, Date created) {
+	public TaskItem(String task, Date created) {
 		_sqlid = -1;
 		_task = task;
-		_priority = ToDoPriority.NORMAL_PRIORITY;
+		_priority = TaskPriority.NORMAL_PRIORITY;
 		_created = created;
 	}
 	
-	public ToDoItem(long sqlid, String task, ToDoPriority priority, Date created) {
+	public TaskItem(long sqlid, String task, TaskPriority priority, Date created) {
 		_sqlid = sqlid;
 		_task = task;
 		_priority = priority;
@@ -67,18 +67,18 @@ public class ToDoItem {
 		return "[" + getPriorityKey() + "] " + _task + " (" + dateString + ")";
 	}
 	
-	public static String getPriority(ToDoPriority priority) {
-		if (priority == ToDoPriority.LOW_PRIORITY)
+	public static String getPriority(TaskPriority priority) {
+		if (priority == TaskPriority.LOW_PRIORITY)
 			return "Low";
-		if (priority == ToDoPriority.HIGH_PRIORITY)
+		if (priority == TaskPriority.HIGH_PRIORITY)
 			return "High";
 		return "Normal";
 	}
 
 	public String getPriorityKey() {
-		if (_priority == ToDoPriority.LOW_PRIORITY)
+		if (_priority == TaskPriority.LOW_PRIORITY)
 			return "L";
-		if (_priority == ToDoPriority.HIGH_PRIORITY)
+		if (_priority == TaskPriority.HIGH_PRIORITY)
 			return "H";
 		return "N";
 	}

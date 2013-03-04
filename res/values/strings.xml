@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TODO List</string>
+    <string name="app_name">Task List</string>
     <string name="add_new">Add New Item</string>
     <string name="edit">Edit Item</string>
     <string name="remove">Remove Item</string>

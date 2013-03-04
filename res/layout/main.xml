@@ -12,7 +12,7 @@
     	android:imeOptions="flagNoEnterAction"
     	android:visibility="gone"
     	android:selectAllOnFocus="true"
-    	android:maxLength="80"
+        android:maxLength="100"
     />
     <ListView
     	android:id="@+id/MyListView"

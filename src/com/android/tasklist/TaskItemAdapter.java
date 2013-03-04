@@ -1,4 +1,4 @@
-package com.android.todolist;
+package com.android.tasklist;
 
 import java.text.SimpleDateFormat;
 import android.content.Context;
@@ -6,20 +6,20 @@ import java.util.*;
 import android.view.*;
 import android.widget.*;
 
-public class ToDoItemAdapter extends ArrayAdapter<ToDoItem> {
+public class TaskItemAdapter extends ArrayAdapter<TaskItem> {
 	
 	int resource;
 	
-	public ToDoItemAdapter(Context _context, int _resource, List<ToDoItem> _items) {
+	public TaskItemAdapter(Context _context, int _resource, List<TaskItem> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
 	}
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		LinearLayout todoView;
+		LinearLayout taskView;
 		
-		ToDoItem item = getItem(position);
+		TaskItem item = getItem(position);
 		
 		String taskString = item.getTask();
 		Date createdDate = item.getCreated();
@@ -27,21 +27,21 @@ public class ToDoItemAdapter extends ArrayAdapter<ToDoItem> {
 		String dateString = sdf.format(createdDate);
 		
 		if (convertView == null) {
-			todoView = new LinearLayout(getContext());
+			taskView = new LinearLayout(getContext());
 			String inflater = Context.LAYOUT_INFLATER_SERVICE;
 			LayoutInflater vi;
 			vi = (LayoutInflater)getContext().getSystemService(inflater);
-			vi.inflate(resource, todoView, true);
+			vi.inflate(resource, taskView, true);
 		} else {
-			todoView = (LinearLayout) convertView;
+			taskView = (LinearLayout) convertView;
 		}
 		
-		TextView dateView = (TextView)todoView.findViewById(R.id.rowDate);
-		TextView taskView = (TextView)todoView.findViewById(R.id.rowTask);
+		TextView dateView = (TextView)taskView.findViewById(R.id.rowDate);
+		TextView textView = (TextView)taskView.findViewById(R.id.rowTask);
 		
 		dateView.setText(dateString);
-		taskView.setText(taskString);
+		textView.setText(taskString);
 		
-		return todoView;
+		return taskView;
 	}
 }
